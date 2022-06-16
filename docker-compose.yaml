@@ -47,4 +47,47 @@ services:
     container_name: smokeping
     environment:
 #    #- PUID=1000
+#    #- PGID=1000
+      - TZ=Pacific/Auckland
+    volumes:
+      - /home/smokeping/config:/config:ro
+      - /home/smokeping/data:/data
+    ports:
+      - 8124:80
+    restart: unless-stopped
+#########
+
+#########
+#Nginx Service
+  webserver:
+    image: nginx:alpine
+    container_name: nginx
+    restart: unless-stopped
+    tty: true
+    ports:
+      - 8125:80
+      - 443:443
+    environment:
+      - TZ=Pacific/Auckland
+
+##########
+
+##########
+
+  netdata:
+     container_name: netdata
+     image: netdata/netdata
+     restart: always
+     ports:
+       - 19999:19999
+     cap_add:
+       - SYS_PTRACE
+     security_opt:
+       - apparmor:unconfined
+     volumes:
+       - /proc:/host/proc:ro
+       - /sys:/host/sys:ro
+       - /var/run/docker.sock:/var/run/docker.sock:ro
+     environment:
+       - PGID=133
 
