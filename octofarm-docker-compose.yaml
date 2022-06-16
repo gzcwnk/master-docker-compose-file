@@ -1,0 +1,34 @@
+version: '3.4'
+
+services:
+  mongodb:
+    image: mongo:latest
+    container_name: mongodb
+    environment:
+      MONGO_INITDB_ROOT_USERNAME: root
+      MONGO_INITDB_ROOT_PASSWORD: guess-well
+      MONGO_INITDB_DATABASE: octofarm
+    volumes:
+    # Local volume (change to mongodb-data for a named volume folder)
+      - /home/octofarm/mongodb/mongodb-data:/data/db
+    restart: unless-stopped
+
+  octofarm:
+    container_name: octofarm
+    # choose octofarm/octofarm:latest
+    image: octofarm/octofarm:latest
+    restart: unless-stopped
+    links:
+      - mongodb
+    ports:
+      - 4000:4000 # port of SYSTEM : port of CONTAINER
+    environment:
+      - MONGO=mongodb://root:guess-well@mongodb:27017/octofarm?authSource=admin
+    volumes:
+    # Volumes as local relative folders (validate with 'docker-compose config')
+      - /home/octofarm/OctoFarm/logs:/app/logs
+      - /home/octofarm/OctoFarm/scripts:/app/scripts
+      - /home/octofarm/OctoFarm/images:/app/images
+
+#ssj need to set permissions
+# cd /home/octofarm ; chmod 777 /home/octofarm -R
